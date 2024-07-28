@@ -39,7 +39,7 @@ jobs:
       - name: Parsing Bandit Report
         id: bandit_report
         run: |
-          echo "results.sarif"
+          echo results.sarif
           echo ${{ steps.bandit.outputs.results }}
           
 #          critical_count=$(grep -oP '(?<=issue_severity: CRITICAL)' ${{ steps.bandit.outputs.results }} | wc -l)
