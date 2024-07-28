@@ -34,8 +34,8 @@ jobs:
         with: # optional arguments
           exit_zero: true # optional, default is DEFAULT
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information.
-          level: HIGH # optional, default is UNDEFINED
-          confidence: HIGH
+      #    level: HIGH # optional, default is UNDEFINED
+      #    confidence: HIGH
 
       - name: Parsing Bandit Report
         id: bandit_report
