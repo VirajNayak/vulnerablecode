@@ -40,11 +40,9 @@ jobs:
       - name: Parsing Bandit Report
         id: bandit_report
         run: |
-          echo results.sarif
-          echo ${{ steps.bandit.outputs.results }}
-          
-#          critical_count=$(grep -oP '(?<=issue_severity: CRITICAL)' ${{ steps.bandit.outputs.results }} | wc -l)
-#          echo "critical_count=$critical_count" >> $GITHUB_ENV
+           critical_count=$(grep -oP '(?<="issue_severity": "HIGH")' ${{ steps.bandit.outputs.results }} | wc -l)
+           echo "critical_count=$critical_count" >> $GITHUB_ENV
+
  #     - name: Add Comment and Block or Merge PR
  #       if: always()
  #       run: |
