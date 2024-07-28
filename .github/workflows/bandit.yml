@@ -42,6 +42,7 @@ jobs:
         run: |
            critical_count=$(grep -oP '(?<="issue_severity": "HIGH")' ${{ steps.bandit.outputs.results }} | wc -l)
            echo "critical_count=$critical_count" >> $GITHUB_ENV
+            echo "$critical_count"
 
  #     - name: Add Comment and Block or Merge PR
  #       if: always()
