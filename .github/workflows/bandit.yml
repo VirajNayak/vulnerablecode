@@ -44,15 +44,15 @@ jobs:
            echo "critical_count=$critical_count" >> $GITHUB_ENV
             echo "$critical_count"
 
- #     - name: Add Comment and Block or Merge PR
- #       if: always()
- #       run: |
- #         if [ ${{ env.critical_count }} -gt 0 ]; then
- #           gh pr comment ${{ github.event.pull_request.number }} --body 'Block'
- #           exit 1
- #         else
- #           gh pr comment ${{ github.event.pull_request.number }} --body 'Successful'
- #           gh pr merge ${{ github.event.pull_request.number }} --merge
- #         fi
- #       env:
- #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Add Comment and Block or Merge PR
+        if: always()
+        run: |
+          if [ ${{ env.critical_count }} -gt 0 ]; then
+            gh pr comment ${{ github.event.pull_request.number }} --body 'Block'
+            exit 1
+          else
+            gh pr comment ${{ github.event.pull_request.number }} --body 'Successful'
+            gh pr merge ${{ github.event.pull_request.number }} --merge
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
