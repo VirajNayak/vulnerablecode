@@ -851,6 +851,9 @@ class Advisory(models.Model):
         self.unique_content_id = checksum.hexdigest()
         super().save(*args, **kwargs)
 
+    def saver(self, *args, **kwargs):
+        checksum = hashlib.md5()
+        
     def to_advisory_data(self) -> AdvisoryData:
         return AdvisoryData(
             aliases=self.aliases,
