@@ -26,33 +26,57 @@ jobs:
       actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
 
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Bandit Scan
-        id: bandit
-        uses: shundor/python-bandit-scan@9cc5aa4a006482b8a7f91134412df6772dbda22c
-        with: # optional arguments
-          exit_zero: true # optional, default is DEFAULT
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information.
-      #    level: HIGH # optional, default is UNDEFINED
-      #    confidence: HIGH
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Parsing Bandit Report
-        id: bandit_report
-        run: |
-           critical_count=$(grep -oP '(?<="issue_severity": "HIGH")' ${{ steps.bandit.outputs.results }} | wc -l)
-           echo "critical_count=$critical_count" >> $GITHUB_ENV
-            echo "$critical_count"
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
 
-      - name: Add Comment and Block or Merge PR
-        if: always()
-        run: |
-          if [ ${{ env.critical_count }} -gt 0 ]; then
-            gh pr comment ${{ github.event.pull_request.number }} --body 'Block'
-            exit 1
-          else
-            gh pr comment ${{ github.event.pull_request.number }} --body 'Successful'
-            gh pr merge ${{ github.event.pull_request.number }} --merge
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Install Bandit
+      run: pip install bandit
+      
+    - name: Run Bandit
+      id: bandit_scan
+      run: |
+        echo "Running Bandit..."
+        bandit -r . -f json -o bandit_output.json || true
+        cat "bandit_output.json"
+        echo "Bandit scan completed."
+        ls -al
+        
+    - name: Analyze Bandit Results
+      id: analyze_results
+      run: |
+        echo "---"
+        ls
+        echo "--"
+        ls
+        CRITICAL_ISSUES=$(jq '[.results[] | select(.issue_severity=="CRITICAL") ] | length' bandit_output.json)
+        HIGH_ISSUES=$(jq '[.results[] | select(.issue_severity=="HIGH") ] | length' bandit_output.json)
+        echo "Critical Issues: $CRITICAL_ISSUES"
+        echo "High Issues: $HIGH_ISSUES"
+        
+        if [ "$CRITICAL_ISSUES" -gt 0 ] || [ "$HIGH_ISSUES" -gt 0 ]; then
+          echo "status=block" >> $GITHUB_ENV
+        else
+          echo "status=success" >> $GITHUB_ENV
+        fi
+    - name: Add Comment and Block PR
+      if: env.status == 'block'
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} --body 'Block'
+        gh pr close ${{ github.event.pull_request.number }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Add Comment and Merge PR
+      if: env.status == 'success'
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} --body 'Successful'
+        gh pr merge ${{ github.event.pull_request.number }} --merge
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
