@@ -89,7 +89,7 @@ def download_subtree(package_slug: str, speculative_execution=False):
         logger.error(f"{package_slug} doesn't exist")
     os.remove(response.location)
 
-def download_subtree1(package_slug: str, speculative_execution=False):
+def download_subtree2(package_slug: str, speculative_execution=False):
     url = f"https://gitlab.com/gitlab-org/security-products/gemnasium-db/-/archive/master/gemnasium-db-master.tar.gz?path={package_slug}"
     response = fetch(url)
     if os.path.getsize(response.location) > 0:
