@@ -49,7 +49,7 @@ jobs:
     - name: Analyze Bandit Results
       id: analyze_results
       run: |
-        CRITICAL_ISSUES=$(jq '[.results[] | select(.issue_severity=="CRITICAL") ] | length' bandit_output.json)
+        CRITICAL_ISSUES=$(jq '[.results[] | select(.issue_severity=="LOW") ] | length' bandit_output.json)
         echo "Critical Issues: $CRITICAL_ISSUES"
         
         if [ "$CRITICAL_ISSUES" -gt 0 ]; then
