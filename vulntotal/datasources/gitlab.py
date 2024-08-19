@@ -89,7 +89,21 @@ def download_subtree(package_slug: str, speculative_execution=False):
         logger.error(f"{package_slug} doesn't exist")
     os.remove(response.location)
 
-
+def download_subtree1(package_slug: str, speculative_execution=False):
+    url = f"https://gitlab.com/gitlab-org/security-products/gemnasium-db/-/archive/master/gemnasium-db-master.tar.gz?path={package_slug}"
+    response = fetch(url)
+    if os.path.getsize(response.location) > 0:
+        extracted_location = Path(response.location).parent.joinpath(
+            "temp_vulntotal_gitlab_datasource"
+        )
+        with tarfile.open(response.location, "r") as file_obj:
+            file_obj.extractall(extracted_location)
+        os.remove(response.location)
+        return extracted_location
+    if not speculative_execution:
+        logger.error(f"{package_slug} doesn't exist")
+    os.remove(response.location)
+    
 def clear_download(location):
     if location:
         shutil.rmtree(location)
